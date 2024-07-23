@@ -4,6 +4,7 @@ import com.leonardoramos.shortme.dto.LinkRequest;
 import com.leonardoramos.shortme.dto.LinkResponse;
 import com.leonardoramos.shortme.service.LinkService;
 import jakarta.servlet.http.HttpServletResponse;
+import jakarta.validation.Valid;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
@@ -24,11 +25,11 @@ public class LinkController {
     @Value("${server.port}")
     String serverPort;
 
-    @Value("${SERVER_ADDRESS}")
+    @Value("${SERVER_URL}")
     String serverAddress;
 
     @PostMapping
-    public ResponseEntity<LinkResponse> createShortLink(@RequestBody LinkRequest request) throws UnknownHostException {
+    public ResponseEntity<LinkResponse> createShortLink(@RequestBody @Valid LinkRequest request) throws UnknownHostException {
         LinkResponse generatedUrl = linkService.shortenUrl(request.getUrlOriginal());
 
         String shortUrl = serverAddress + ":" + serverPort + "/r/" + generatedUrl.getUrlShort();
@@ -46,7 +47,7 @@ public class LinkController {
             if (urlOriginal != null) {
                 response.sendRedirect(urlOriginal.getUrlOriginal());
             } else {
-                log.info("Original URL not found  for: " + shortUrl);
+                log.info("Original URL not found  for: {}", shortUrl);
                 response.sendError(HttpServletResponse.SC_NOT_FOUND);
             }
         } catch (RuntimeException e) {
