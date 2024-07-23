@@ -13,5 +13,5 @@ import lombok.NoArgsConstructor;
 public class LinkRequest {
     @NotNull(message = "URL original is required")
     @NotEmpty(message = "URL original is required")
-    String urlOriginal;
+    private String urlOriginal;
 }
