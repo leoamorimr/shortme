@@ -20,9 +20,9 @@ public class Link {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
-    private String urlOriginal;
+    private String longUrl;
 
-    private String urlShort;
+    private String shortUrl;
 
     private LocalDateTime urlCreatedAt;
 

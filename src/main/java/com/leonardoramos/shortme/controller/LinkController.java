@@ -1,7 +1,7 @@
 package com.leonardoramos.shortme.controller;
 
-import com.leonardoramos.shortme.dto.LinkRequest;
-import com.leonardoramos.shortme.dto.LinkResponse;
+import com.leonardoramos.shortme.dto.LinkRequestDTO;
+import com.leonardoramos.shortme.dto.LinkResponseDTO;
 import com.leonardoramos.shortme.service.LinkService;
 import jakarta.servlet.http.HttpServletResponse;
 import jakarta.validation.Valid;
@@ -13,28 +13,28 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
 import java.io.IOException;
-import java.net.UnknownHostException;
 
 @RestController()
+@RequestMapping("/")
 @Slf4j
 public class LinkController {
-
-    @Autowired
-    public LinkService linkService;
 
     @Value("${server.port}")
     String serverPort;
 
-    @Value("${SERVER_URL}")
-    String serverAddress;
+    @Value("${api.shortme.redirect.url}")
+    String apiRedirectUrl;
+
+    @Autowired
+    private LinkService linkService;
 
     @PostMapping
-    public ResponseEntity<LinkResponse> createShortLink(@RequestBody @Valid LinkRequest request) throws UnknownHostException {
-        LinkResponse generatedUrl = linkService.shortenUrl(request.getUrlOriginal());
+    public ResponseEntity<LinkResponseDTO> createShortLink(@RequestBody @Valid LinkRequestDTO request) {
+        LinkResponseDTO generatedUrl = linkService.shortenUrl(request.getLongUrl());
 
-        String shortUrl = serverAddress + ":" + serverPort + "/r/" + generatedUrl.getUrlShort();
+        String shortUrl = apiRedirectUrl + "/r/" + generatedUrl.getShortUrl();
 
-        LinkResponse response = new LinkResponse(generatedUrl.getUrlOriginal(), shortUrl, generatedUrl.getUrlCreatedAt());
+        LinkResponseDTO response = new LinkResponseDTO(generatedUrl.getLongUrl(), shortUrl, generatedUrl.getUrlCreatedAt());
 
         return ResponseEntity.status(HttpStatus.CREATED).body(response);
     }
@@ -42,10 +42,10 @@ public class LinkController {
     @GetMapping("/r/{shortUrl}")
     public void redirectToOriginalUrl(@PathVariable String shortUrl, HttpServletResponse response) throws IOException {
         try {
-            LinkResponse urlOriginal = linkService.getOriginalUrl(shortUrl);
+            LinkResponseDTO urlOriginal = linkService.getOriginalUrl(shortUrl);
 
             if (urlOriginal != null) {
-                response.sendRedirect(urlOriginal.getUrlOriginal());
+                response.sendRedirect(urlOriginal.getLongUrl());
             } else {
                 log.info("Original URL not found  for: {}", shortUrl);
                 response.sendError(HttpServletResponse.SC_NOT_FOUND);

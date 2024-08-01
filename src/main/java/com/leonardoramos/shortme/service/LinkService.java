@@ -1,6 +1,6 @@
 package com.leonardoramos.shortme.service;
 
-import com.leonardoramos.shortme.dto.LinkResponse;
+import com.leonardoramos.shortme.dto.LinkResponseDTO;
 import com.leonardoramos.shortme.model.Link;
 import com.leonardoramos.shortme.repository.LinkRepository;
 import lombok.extern.slf4j.Slf4j;
@@ -22,13 +22,13 @@ public class LinkService {
     @Autowired
     private LinkRepository linkRepository;
 
-    public LinkResponse shortenUrl(String url) {
-        var link = Link.builder().urlShort(generateShortLink()).urlOriginal(url).urlCreatedAt(LocalDateTime.now()).build();
+    public LinkResponseDTO shortenUrl(String url) {
+        var link = Link.builder().shortUrl(generateShortLink()).longUrl(url).urlCreatedAt(LocalDateTime.now()).build();
 
         var savedLink = linkRepository.save(link);
-        log.info("Short link created: " + savedLink.getUrlShort());
+        log.info("Short link created: " + savedLink.getShortUrl());
 
-        return modelMapper.map(savedLink, LinkResponse.class);
+        return modelMapper.map(savedLink, LinkResponseDTO.class);
     }
 
     private String generateShortLink() {
@@ -36,13 +36,13 @@ public class LinkService {
         return RandomStringUtils.randomAlphabetic(SHORT_URL_MIN_LENGTH, SHORT_URL_MAX_LENGTH);
     }
 
-    public LinkResponse getOriginalUrl(String shortUrl) throws RuntimeException {
+    public LinkResponseDTO getOriginalUrl(String shortUrl) throws RuntimeException {
         try {
             log.info("Getting original URL for: " + shortUrl);
-            var link = linkRepository.findByUrlShort(shortUrl);
-            log.info("Original URL found: " + link.getUrlOriginal());
+            var link = linkRepository.findByShortUrl(shortUrl);
+            log.info("Original URL found: " + link.getLongUrl());
 
-            return modelMapper.map(link, LinkResponse.class);
+            return modelMapper.map(link, LinkResponseDTO.class);
         } catch (Exception e) {
             log.error(e.getMessage());
             throw new RuntimeException("Error getting the original URL.", e);

@@ -4,13 +4,15 @@ import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
-import java.time.LocalDateTime;
+import java.util.List;
 
 @Data
 @AllArgsConstructor
 @NoArgsConstructor
-public class LinkResponse {
-    String urlOriginal;
-    String urlShort;
-    LocalDateTime urlCreatedAt;
+public class AppErrorDTO {
+
+    private String message;
+    private List<String> errors;
+
+
 }
