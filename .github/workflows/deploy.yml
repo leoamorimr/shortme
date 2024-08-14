@@ -46,7 +46,7 @@ jobs:
         run: |
           echo "${EC2_KEY}" > key.pem
           chmod 600 key.pem
-          scp -o StrictHostKeyChecking=no -i key.pem *.jar $EC2_USER@$EC2_HOST:~/workspace/shortme-0.0.1-SNAPSHOT.jar
+          scp -o StrictHostKeyChecking=no -i key.pem *.jar $EC2_USER@$EC2_HOST:~/workspace/shortme-app.jar
 
       - name: Deploy JAR on EC2
         env:
