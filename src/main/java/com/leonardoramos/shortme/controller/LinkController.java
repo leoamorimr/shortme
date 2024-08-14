@@ -12,8 +12,6 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
-import java.io.IOException;
-
 @RestController()
 @RequestMapping("/")
 @Slf4j
@@ -40,19 +38,14 @@ public class LinkController {
     }
 
     @GetMapping("/r/{shortUrl}")
-    public void redirectToOriginalUrl(@PathVariable String shortUrl, HttpServletResponse response) throws IOException {
-        try {
-            LinkResponseDTO urlOriginal = linkService.getOriginalUrl(shortUrl);
+    public void redirectToOriginalUrl(@PathVariable String shortUrl, HttpServletResponse response) throws Exception {
+        LinkResponseDTO urlOriginal = linkService.getOriginalUrl(shortUrl);
 
-            if (urlOriginal != null) {
-                response.sendRedirect(urlOriginal.getLongUrl());
-            } else {
-                log.info("Original URL not found  for: {}", shortUrl);
-                response.sendError(HttpServletResponse.SC_NOT_FOUND);
-            }
-        } catch (RuntimeException e) {
-            log.error(e.getMessage());
-            response.sendError(HttpServletResponse.SC_INTERNAL_SERVER_ERROR);
+        if (urlOriginal != null) {
+            response.sendRedirect(urlOriginal.getLongUrl());
+        } else {
+            log.info("Original URL not found  for: {}", shortUrl);
+            response.sendError(HttpServletResponse.SC_NOT_FOUND);
         }
     }
 
