@@ -7,9 +7,12 @@ import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Component;
 
 import java.io.IOException;
+import java.util.List;
 
 @Component
 public class ApiKeyFilter implements Filter {
+
+    private final List<String> bypassEndpoints = List.of("/r/");
 
     @Value("${api.key}")
     private String apiKey;
@@ -24,8 +27,11 @@ public class ApiKeyFilter implements Filter {
         HttpServletResponse httpResponse = (HttpServletResponse) servletResponse;
 
         String requestApiKey = httpRequest.getHeader("X-API-KEY");
+        String requestURI = httpRequest.getRequestURI();
 
-        if (apiKey.equals(requestApiKey)) {
+        boolean isBypassed = bypassEndpoints.stream().anyMatch(requestURI::startsWith);
+
+        if (isBypassed || apiKey.equals(requestApiKey)) {
             filterChain.doFilter(servletRequest, servletResponse);
         } else {
             httpResponse.setStatus(HttpServletResponse.SC_UNAUTHORIZED);
