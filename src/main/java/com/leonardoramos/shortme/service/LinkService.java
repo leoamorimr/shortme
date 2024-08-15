@@ -8,7 +8,10 @@ import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang3.RandomStringUtils;
 import org.modelmapper.ModelMapper;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
+
+import java.time.Period;
 
 @Service
 @Slf4j
@@ -16,7 +19,10 @@ public class LinkService {
     private final int SHORT_URL_MIN_LENGTH = 5;
     private final int SHORT_URL_MAX_LENGTH = 10;
 
-    ModelMapper modelMapper = new ModelMapper();
+    private final ModelMapper modelMapper = new ModelMapper();
+
+    @Value("${api.shortme.delete.urls.before.days}")
+    private String deleteUrlsBeforeDays;
 
     @Autowired
     private LinkRepository linkRepository;
@@ -51,5 +57,12 @@ public class LinkService {
         }
 
         return modelMapper.map(link, LinkResponseDTO.class);
+    }
+
+    public void cleanOldUrls() {
+        log.info("Cleaning old URLs");
+        var deleteDate = java.time.LocalDateTime.now().minus(Period.ofDays(Integer.parseInt(deleteUrlsBeforeDays)));
+
+        linkRepository.deleteOldLinks(deleteDate);
     }
 }

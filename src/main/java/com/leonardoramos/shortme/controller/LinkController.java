@@ -49,4 +49,9 @@ public class LinkController {
         }
     }
 
+    @DeleteMapping("/clean-old-urls")
+    public ResponseEntity<String> cleanOldUrls() {
+        linkService.cleanOldUrls();
+        return ResponseEntity.ok("Old URLs cleaned successfully");
+    }
 }
